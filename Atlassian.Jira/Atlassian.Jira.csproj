@@ -6,12 +6,12 @@
     <Authors>Federico Silva Armas,Athanasios Oikonomou</Authors>
     <Company>Federico Silva Armas</Company>
     <Product>JiraSharp</Product>
-    <Copyright>https://bitbucket.org/athoik/atlassian.net-sdk</Copyright>
+    <Copyright>https://bitbucket.org/athoik/jirasharp</Copyright>
     <PackageTags>Atlassian JIRA LINQ C# .NET</PackageTags>
-    <PackageReleaseNotes>For change history, visit: https://bitbucket.org/athoik/atlassian.net-sdk/src/master/docs/change-history.md</PackageReleaseNotes>
+    <PackageReleaseNotes>For change history, visit: https://bitbucket.org/athoik/jirasharp/src/master/docs/change-history.md</PackageReleaseNotes>
     <Description>Utilities to interact with Atlassian products. Contains LinqToJira provider for querying JIRA Issue tracker (http://www.atlassian.com/software/jira).</Description>
     <PackageIconUrl>https://res.cloudinary.com/farmas/image/upload/v1581984204/atlassian/AtlassianIcon.png</PackageIconUrl>
-    <PackageProjectUrl>https://bitbucket.org/athoik/atlassian.net-sdk</PackageProjectUrl>
+    <PackageProjectUrl>https://bitbucket.org/athoik/jirasharp</PackageProjectUrl>
     <PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>$(Version)</AssemblyVersion>
