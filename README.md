@@ -1,18 +1,16 @@
-# Atlassian.NET SDK
+# JiraSharp fork of Atlassian.NET SDK
 
 Contains utilities for interacting with  [Atlassian JIRA](http://www.atlassian.com/software/jira).
 
 ## Support Notice
 
-All features tested on JIRA v8.5.2
+The main branch currently has support for RestSharp v108 and all features supported by Atlassian.SDK 13.0.0
 
-Due to time constraints, this project is no longer mantained. Thank you for all the support during these past years.
+Uploaded to NuGet with different name, following XYZ"Sharp" fancy naming.
 
 ## Download
 
-- [Get the latest via NuGet](http://nuget.org/List/Packages/Atlassian.SDK).
-- [Get the latest binaries from AppVeyor](https://ci.appveyor.com/project/farmas/atlassian-net-sdk/history).
-  [![Build Status](https://ci.appveyor.com/api/projects/status/bitbucket/farmas/atlassian.net-sdk?branch=release&amp;svg=true)](https://ci.appveyor.com/project/farmas/atlassian-net-sdk)
+- [Get the latest via NuGet](http://nuget.org/List/Packages/JiraSharp).
 
 ## License
 
@@ -22,39 +20,10 @@ This project is licensed under  [BSD](/LICENSE.md).
 
 - [RestSharp](https://www.nuget.org/packages/RestSharp)
 - [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json)
-- Tested with JIRA v8.5.2
 
 ## History
 
-- For a description changes, check out the [Change History Page](/docs/change-history.md).
+- Fork of [Atlassian.NET SDK](https://bitbucket.org/farmas/atlassian.net-sdk/src/master/)
 
-- This project began in 2010 during a [ShipIt](https://www.atlassian.com/company/shipit) day at Atlassian with provider
-  to query Jira issues using LINQ syntax. Over time it grew to add many more operations on top of the JIRA SOAP API.
-  Support of REST API was added on v4.0 and support of SOAP API was dropped on v8.0.
+Thanks for all the great support [Farmas](https://bitbucket.org/farmas/)!
 
-## Related Projects
-
-- [VS Jira](https://bitbucket.org/farmas/vsjira) - A VisualStudio Extension that adds tools to interact with JIRA
-servers.
-- [Jira OAuth CLI](https://bitbucket.org/farmas/atlassian.net-jira-oauth-cli) - Command line tool to setup OAuth on a JIRA server so that it can be used with the Atlassian.NET SDK.
-
-## Signed Version
-
-### Atlassian.SDK.Signed (Deprecated)
-
-The [Atlassian.SDK.Signed](https://www.nuget.org/packages/Atlassian.SDK.Signed/) package contains a signed version of
-the assembly, however it is no longer being mantained. It has the following limitations:
-
-- It references the  [RestSharpSigned](https://www.nuget.org/packages/RestSharpSigned) package, which is not up-to-date
-  to the official  [RestSharp](https://www.nuget.org/packages/RestSharpSigned) package.
-- It only supports net452 framework (does not support .netcore).
-
-### Using StrongNameSigner
-
-An alternative to using the Atlassian.SDK.Signed package is to use the [StrongNameSigner](https://www.nuget.org/packages/Brutal.Dev.StrongNameSigner) which can automatically sign any un-signed packages in your project. For a sample of how to use it in a project see [VS Jira](https://bitbucket.org/farmas/vsjira).
-
-## Documentation
-
-The documentation is placed under the [docs](/docs) folder.
-
-As a first user, here is the documentation on [how to use the SDK](/docs/how-to-use-the-sdk.md).
