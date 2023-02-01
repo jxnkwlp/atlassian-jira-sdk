@@ -34,6 +34,7 @@ namespace Atlassian.Jira.Test.Integration
             Assert.Equal(user.Username, userInfo.Username);
             Assert.NotNull(user.Key);
             Assert.True(user.IsActive);
+            Assert.False(String.IsNullOrEmpty(user.TimeZone));
             Assert.False(String.IsNullOrEmpty(user.Locale));
 
             // verify retrieve a user.
@@ -64,6 +65,7 @@ namespace Atlassian.Jira.Test.Integration
             Assert.Equal(user.Username, userInfo.Username);
             Assert.NotNull(user.Key);
             Assert.True(user.IsActive);
+            Assert.False(String.IsNullOrEmpty(user.TimeZone));
             Assert.False(String.IsNullOrEmpty(user.Locale));
 
             // verify retrieve a user.

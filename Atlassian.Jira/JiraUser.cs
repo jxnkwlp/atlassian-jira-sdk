@@ -19,6 +19,7 @@ namespace Atlassian.Jira
             Email = remoteUser.emailAddress;
             IsActive = remoteUser.active;
             Key = remoteUser.key;
+            TimeZone = remoteUser.timeZone;
             Locale = remoteUser.locale;
             Self = remoteUser.self;
             Username = remoteUser.name;
@@ -62,6 +63,11 @@ namespace Atlassian.Jira
         /// Whether the user is marked as active on the server.
         /// </summary>
         public bool IsActive { get; internal set; }
+
+        /// <summary>
+        /// The Time Zone of the user.
+        /// </summary>
+        public string TimeZone { get; internal set; }
 
         /// <summary>
         /// The locale of the User.
