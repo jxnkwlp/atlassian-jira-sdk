@@ -80,7 +80,7 @@ namespace Atlassian.Jira.Test.Integration
         async Task AddAndRemoveWatchersToIssueWithEmailAsUsername(Jira jira)
         {
             // Create issue.
-            var issue = jira.CreateIssue("TST");
+            var issue = jira.CreateIssue("SCRUM");
             issue.Type = "1";
             issue.Summary = "Test issue with watchers" + _random.Next(int.MaxValue);
             issue.SaveChanges();
