@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
@@ -29,6 +30,7 @@ namespace Atlassian.Jira.Remote
                 throw new ArgumentNullException(nameof(remoteUrl), "Remote URL must be supplied.");
             }
 
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var bodyObject = new JObject();
             var bodyObjectContent = new JObject();
             bodyObject.Add("object", bodyObjectContent);
@@ -41,7 +43,9 @@ namespace Atlassian.Jira.Remote
                 bodyObjectContent.Add("summary", summary);
             }
 
-            return _jira.RestClient.ExecuteRequestAsync(Method.Post, String.Format("rest/api/2/issue/{0}/remotelink", issueKey), bodyObject, token);
+            var requestBody = JsonConvert.SerializeObject(bodyObject, serializerSettings);
+
+            return _jira.RestClient.ExecuteRequestAsync(Method.Post, String.Format("rest/api/2/issue/{0}/remotelink", issueKey), requestBody, token);
         }
 
         public async Task<IEnumerable<IssueRemoteLink>> GetRemoteLinksForIssueAsync(string issueKey, CancellationToken token = default(CancellationToken))

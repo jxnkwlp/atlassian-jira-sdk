@@ -64,9 +64,9 @@ namespace Atlassian.Jira.Remote
         public async Task<ProjectVersion> CreateVersionAsync(ProjectVersionCreationInfo projectVersion, CancellationToken token = default(CancellationToken))
         {
             var settings = _jira.RestClient.Settings.JsonSerializerSettings;
-            var serializer = JsonSerializer.Create(settings);
             var resource = "/rest/api/2/version";
-            var requestBody = JToken.FromObject(projectVersion, serializer);
+            var requestBody = JsonConvert.SerializeObject(projectVersion, settings);
+
             var remoteVersion = await _jira.RestClient.ExecuteRequestAsync<RemoteVersion>(Method.Post, resource, requestBody, token).ConfigureAwait(false);
             remoteVersion.ProjectKey = projectVersion.ProjectKey;
             var version = new ProjectVersion(_jira, remoteVersion);

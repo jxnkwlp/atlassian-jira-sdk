@@ -21,9 +21,9 @@ namespace Atlassian.Jira.Remote
 
         public async Task<ProjectComponent> CreateComponentAsync(ProjectComponentCreationInfo projectComponent, CancellationToken token = default(CancellationToken))
         {
-            var serializer = JsonSerializer.Create(_jira.RestClient.Settings.JsonSerializerSettings);
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var resource = "/rest/api/2/component";
-            var requestBody = JToken.FromObject(projectComponent, serializer);
+            var requestBody = JsonConvert.SerializeObject(projectComponent, serializerSettings);
             var remoteComponent = await _jira.RestClient.ExecuteRequestAsync<RemoteComponent>(Method.Post, resource, requestBody, token).ConfigureAwait(false);
             remoteComponent.ProjectKey = projectComponent.ProjectKey;
             var component = new ProjectComponent(remoteComponent);

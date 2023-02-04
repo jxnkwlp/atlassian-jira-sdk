@@ -20,6 +20,7 @@ namespace Atlassian.Jira.Remote
 
         public Task CreateLinkAsync(string outwardIssueKey, string inwardIssueKey, string linkName, string comment, CancellationToken token = default(CancellationToken))
         {
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var bodyObject = new JObject();
             bodyObject.Add("type", new JObject(new JProperty("name", linkName)));
             bodyObject.Add("inwardIssue", new JObject(new JProperty("key", inwardIssueKey)));
@@ -30,7 +31,9 @@ namespace Atlassian.Jira.Remote
                 bodyObject.Add("comment", new JObject(new JProperty("body", comment)));
             }
 
-            return _jira.RestClient.ExecuteRequestAsync(Method.Post, "rest/api/2/issueLink", bodyObject, token);
+            var requestBody = JsonConvert.SerializeObject(bodyObject, serializerSettings);
+
+            return _jira.RestClient.ExecuteRequestAsync(Method.Post, "rest/api/2/issueLink", requestBody, token);
         }
 
         public async Task<IEnumerable<IssueLink>> GetLinksForIssueAsync(string issueKey, CancellationToken token = default(CancellationToken))
@@ -66,7 +69,7 @@ namespace Atlassian.Jira.Remote
             }).ToList();
 
             var issuesMap = await _jira.Issues.GetIssuesAsync(issuesToGet, token).ConfigureAwait(false);
-            if(!issuesMap.Keys.Contains(issue.Key.ToString()))
+            if (!issuesMap.Keys.Contains(issue.Key.ToString()))
             {
                 issuesMap.Add(issue.Key.ToString(), issue);
             }

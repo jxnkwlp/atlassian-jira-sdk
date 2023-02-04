@@ -26,14 +26,14 @@ namespace Atlassian.Jira.Remote
                 body = new { accountId = username };
             }
 
-            var requestBody = JToken.FromObject(body);
+            var requestBody = JsonConvert.SerializeObject(body);
             return _jira.RestClient.ExecuteRequestAsync(Method.Post, resource, requestBody, token);
         }
 
         public Task CreateGroupAsync(string groupName, CancellationToken token = default(CancellationToken))
         {
             var resource = "rest/api/2/group";
-            var requestBody = JToken.FromObject(new { name = groupName });
+            var requestBody = JsonConvert.SerializeObject(new { name = groupName });
 
             return _jira.RestClient.ExecuteRequestAsync(Method.Post, resource, requestBody, token);
         }

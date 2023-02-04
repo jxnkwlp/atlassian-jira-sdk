@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -744,7 +745,7 @@ namespace Atlassian.Jira.Test.Integration
 
             // Set new property on issue
             var keyString = "test-property";
-            var keyValue = JToken.FromObject("test-string");
+            var keyValue = JsonConvert.SerializeObject("test-string");
             await issue.SetPropertyAsync(keyString, keyValue);
 
             // Verify one property exists.

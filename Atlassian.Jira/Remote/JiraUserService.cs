@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
@@ -19,8 +20,9 @@ namespace Atlassian.Jira.Remote
 
         public async Task<JiraUser> CreateUserAsync(JiraUserCreationInfo user, CancellationToken token = default(CancellationToken))
         {
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var resource = "rest/api/2/user";
-            var requestBody = JToken.FromObject(user);
+            var requestBody = JsonConvert.SerializeObject(user, serializerSettings);
 
             return await _jira.RestClient.ExecuteRequestAsync<JiraUser>(Method.Post, resource, requestBody, token).ConfigureAwait(false);
         }

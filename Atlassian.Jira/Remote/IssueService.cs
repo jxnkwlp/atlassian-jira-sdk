@@ -143,7 +143,9 @@ namespace Atlassian.Jira.Remote
             var remoteIssue = await issue.ToRemoteAsync(token).ConfigureAwait(false);
             var fields = await this.BuildFieldsObjectFromIssueAsync(remoteIssue, remoteFields, token).ConfigureAwait(false);
 
-            await _jira.RestClient.ExecuteRequestAsync(Method.Put, resource, new { fields = fields }, token).ConfigureAwait(false);
+            var requestBody = JsonConvert.SerializeObject(new { fields = fields });
+
+            await _jira.RestClient.ExecuteRequestAsync(Method.Put, resource, requestBody, token).ConfigureAwait(false);
         }
 
         public Task UpdateIssueAsync(Issue issue, CancellationToken token = default(CancellationToken))
@@ -217,6 +219,7 @@ namespace Atlassian.Jira.Remote
 
             updates = updates ?? new WorkflowTransitionUpdates();
 
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var resource = String.Format("rest/api/2/issue/{0}/transitions", issue.Key.Value);
             var fieldProvider = issue as IRemoteIssueFieldProvider;
             var remoteFields = await fieldProvider.GetRemoteFieldValuesAsync(token).ConfigureAwait(false);
@@ -233,7 +236,7 @@ namespace Atlassian.Jira.Remote
                 }));
             }
 
-            var requestBody = new
+            var _requestBody = new
             {
                 transition = new
                 {
@@ -242,6 +245,8 @@ namespace Atlassian.Jira.Remote
                 update = updatesObject,
                 fields = fields
             };
+
+            var requestBody = JsonConvert.SerializeObject(_requestBody, serializerSettings);
 
             await _jira.RestClient.ExecuteRequestAsync(Method.Post, resource, requestBody, token).ConfigureAwait(false);
         }
@@ -545,8 +550,10 @@ namespace Atlassian.Jira.Remote
                 queryString = "adjustEstimate=new&newEstimate=" + Uri.EscapeDataString(newEstimate);
             }
 
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var resource = String.Format("rest/api/2/issue/{0}/worklog?{1}", issueKey, queryString);
-            var serverWorklog = await _jira.RestClient.ExecuteRequestAsync<RemoteWorklog>(Method.Post, resource, remoteWorklog, token).ConfigureAwait(false);
+            var requestBody = JsonConvert.SerializeObject(remoteWorklog, serializerSettings);
+            var serverWorklog = await _jira.RestClient.ExecuteRequestAsync<RemoteWorklog>(Method.Post, resource, requestBody, token).ConfigureAwait(false);
             return new Worklog(serverWorklog);
         }
 
@@ -662,9 +669,11 @@ namespace Atlassian.Jira.Remote
                 throw new ArgumentOutOfRangeException(nameof(propertyKey), "PropertyKey length must be between 0 and 256 (both exclusive).");
             }
 
+            var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
             var urlEncodedKey = WebUtility.UrlEncode(propertyKey);
             var resource = $"rest/api/2/issue/{issueKey}/properties/{urlEncodedKey}";
-            return _jira.RestClient.ExecuteRequestAsync(Method.Put, resource, obj, token);
+            var requestBody = JsonConvert.SerializeObject(obj, serializerSettings);
+            return _jira.RestClient.ExecuteRequestAsync(Method.Put, resource, requestBody, token);
         }
 
         public async Task DeletePropertyAsync(string issueKey, string propertyKey, CancellationToken token = default)
