@@ -164,17 +164,13 @@ namespace Atlassian.Jira
             {
                 // There are multiple custom fields with the same name, need to find it by the project.
                 var options = new CustomFieldFetchOptions();
-                options.ProjectKeys.Add(_issue.Project);
+                options.ProjectKey = _issue.Project;
 
                 if (!String.IsNullOrEmpty(_issue.Type?.Id))
                 {
-                    options.IssueTypeIds.Add(_issue.Type.Id);
+                    options.IssueTypeId = _issue.Type.Id;
                 }
-                else if (!String.IsNullOrEmpty(_issue.Type?.Name))
-                {
-                    options.IssueTypeNames.Add(_issue.Type.Name);
-                }
-
+                
                 customFields = _issue.Jira.Fields.GetCustomFieldsAsync(options).Result.Where(f => f.Name.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
             }
 

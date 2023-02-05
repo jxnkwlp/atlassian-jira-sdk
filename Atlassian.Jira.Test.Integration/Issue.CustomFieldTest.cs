@@ -14,7 +14,7 @@ namespace Atlassian.Jira.Test.Integration
         public async void CustomFieldsForProject_IfProjectDoesNotExist_ShouldThrowException(Jira jira)
         {
             var options = new CustomFieldFetchOptions();
-            options.ProjectKeys.Add("FOO");
+            options.ProjectKey = "FOO";
             Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await jira.Fields.GetCustomFieldsAsync(options));
 
             Assert.Contains("Project with key 'FOO' was not found on the Jira server.", ex.Message);
@@ -24,8 +24,11 @@ namespace Atlassian.Jira.Test.Integration
         [ClassData(typeof(JiraProvider))]
         public async void CustomFieldsForProject_ShouldReturnAllCustomFieldsOfAllIssueTypes(Jira jira)
         {
-            var options = new CustomFieldFetchOptions();
-            options.ProjectKeys.Add("TST");
+            var options = new CustomFieldFetchOptions
+            {
+                ProjectKey = "TST"
+            };
+
             var results = await jira.Fields.GetCustomFieldsAsync(options);
             Assert.Equal(21, results.Count());
         }
@@ -37,9 +40,11 @@ namespace Atlassian.Jira.Test.Integration
         [ClassData(typeof(JiraProvider))]
         public async void CustomFieldsForProjectAndIssueType_ShouldReturnAllCustomFieldsTheIssueType(Jira jira)
         {
-            var options = new CustomFieldFetchOptions();
-            options.ProjectKeys.Add("TST");
-            options.IssueTypeNames.Add("Bug");
+            var options = new CustomFieldFetchOptions
+            {
+                ProjectKey = "TST",
+                IssueTypeId = "1"
+            };
 
             var results = await jira.Fields.GetCustomFieldsAsync(options);
             Assert.Equal(19, results.Count());

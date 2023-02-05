@@ -32,51 +32,69 @@ namespace Atlassian.Jira.Remote
             return cache.CustomFields.Values;
         }
 
+
+        /// <summary>
+        /// Note: https://confluence.atlassian.com/jiracore/createmeta-rest-endpoint-to-be-removed-975040986.html
+        /// Function updated to use new API call
+        /// CustomFieldFetchOptions now accepts a signle Project Key and a single Issue Type Id
+        /// When Issue Type Id is empty we are going to receive all CustomFields for the given Project
+        /// </summary>
         public async Task<IEnumerable<CustomField>> GetCustomFieldsAsync(CustomFieldFetchOptions options, CancellationToken token = default(CancellationToken))
         {
             var cache = _jira.Cache;
-            var projectKey = options.ProjectKeys.FirstOrDefault();
-            var issueTypeId = options.IssueTypeIds.FirstOrDefault();
-            var issueTypeName = options.IssueTypeNames.FirstOrDefault();
+            var projectIdOrKey = options.ProjectKey;
+            var projectKey = options.ProjectKey;
+            var issueTypeId = options.IssueTypeId;
 
-            if (!String.IsNullOrEmpty(issueTypeId) || !String.IsNullOrEmpty(issueTypeName))
+            if (!string.IsNullOrEmpty(issueTypeId) || !string.IsNullOrEmpty(issueTypeId))
             {
-                projectKey = $"{projectKey}::{issueTypeId}::{issueTypeName}";
+                projectKey = $"{projectKey}::{issueTypeId}";
             }
-            else if (String.IsNullOrEmpty(projectKey))
+            else if (string.IsNullOrEmpty(projectKey))
             {
                 return await GetCustomFieldsAsync(token);
+            }
+            else if (string.IsNullOrEmpty(issueTypeId))
+            {
+                IEnumerable<IssueType> issueTypeIds;
+                List<CustomField> projectCustomFields = new List<CustomField>();
+
+                try
+                {
+                    issueTypeIds = await _jira.IssueTypes.GetIssueTypesForProjectAsync(projectIdOrKey).ConfigureAwait(false);
+                }
+                catch (ResourceNotFoundException)
+                {
+                    throw new InvalidOperationException($"Project with key '{projectIdOrKey}' was not found on the Jira server.");
+                }
+
+                foreach (var i in issueTypeIds)
+                {
+                    var opt = new CustomFieldFetchOptions() { ProjectKey = projectIdOrKey, IssueTypeId = i.Id };
+                    var customFields = await GetCustomFieldsAsync(opt, token);
+                    projectCustomFields.AddRange(customFields);
+                }
+
+                return projectCustomFields.GroupBy(c => c.Id).Select(g => g.First());
             }
 
             if (!cache.ProjectCustomFields.TryGetValue(projectKey, out JiraEntityDictionary<CustomField> fields))
             {
-                var resource = $"rest/api/2/issue/createmeta?expand=projects.issuetypes.fields";
+                var resource = $"rest/api/2/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId}";
+                JToken jProject = null;
 
-                if (options.ProjectKeys.Any())
+                try
                 {
-                    resource += $"&projectKeys={String.Join(",", options.ProjectKeys)}";
+                    var jToken = await _jira.RestClient.ExecuteRequestAsync(Method.Get, resource, null, token).ConfigureAwait(false);
+                    jProject = jToken["values"];
                 }
-
-                if (options.IssueTypeIds.Any())
+                catch (ResourceNotFoundException)
                 {
-                    resource += $"&issuetypeIds={String.Join(",", options.IssueTypeIds)}";
-                }
-
-                if (options.IssueTypeNames.Any())
-                {
-                    resource += $"&issuetypeNames={String.Join(",", options.IssueTypeNames)}";
-                }
-
-                var jObject = await _jira.RestClient.ExecuteRequestAsync(Method.Get, resource, null, token).ConfigureAwait(false);
-                var jProject = jObject["projects"].FirstOrDefault();
-
-                if (jProject == null)
-                {
-                    throw new InvalidOperationException($"Project with key '{projectKey}' was not found on the Jira server.");
+                    throw new InvalidOperationException($"Project with key '{projectIdOrKey}' was not found on the Jira server.");
                 }
 
                 var serializerSettings = _jira.RestClient.Settings.JsonSerializerSettings;
-                var customFields = jProject["issuetypes"].SelectMany(issueType => GetCustomFieldsFromIssueType(issueType, serializerSettings));
+                var customFields = jProject.SelectMany(issueType => GetCustomFieldsFromIssueType(issueType, serializerSettings));
                 var distinctFields = customFields.GroupBy(c => c.Id).Select(g => g.First());
 
                 cache.ProjectCustomFields.TryAdd(projectKey, new JiraEntityDictionary<CustomField>(distinctFields));
@@ -85,20 +103,31 @@ namespace Atlassian.Jira.Remote
             return cache.ProjectCustomFields[projectKey].Values;
         }
 
+
         public Task<IEnumerable<CustomField>> GetCustomFieldsForProjectAsync(string projectKey, CancellationToken token = default(CancellationToken))
         {
-            var options = new CustomFieldFetchOptions();
-            options.ProjectKeys.Add(projectKey);
+            var options = new CustomFieldFetchOptions
+            {
+                ProjectKey = projectKey
+            };
 
             return GetCustomFieldsAsync(options, token);
         }
 
         private static IEnumerable<CustomField> GetCustomFieldsFromIssueType(JToken issueType, JsonSerializerSettings serializerSettings)
         {
-            return ((JObject)issueType["fields"]).Properties()
-                .Where(f => f.Name.StartsWith("customfield_", StringComparison.OrdinalIgnoreCase))
-                .Select(f => JsonConvert.DeserializeObject<RemoteField>(f.Value.ToString(), serializerSettings))
-                .Select(remoteField => new CustomField(remoteField));
+            var remoteField = JsonConvert.DeserializeObject<RemoteField>(issueType.ToString(), serializerSettings);
+
+            // map fieldId to id
+            remoteField.id = issueType["fieldId"].ToString();
+
+            if (!remoteField.id.StartsWith("customfield_", StringComparison.OrdinalIgnoreCase))
+                return Enumerable.Empty<CustomField>();
+
+            // there is no custom property returned by createmeta API, since we have an customfield id, mark it as custom
+            remoteField.IsCustomField = true;
+
+            return new[] { new CustomField(remoteField) };
         }
     }
 }

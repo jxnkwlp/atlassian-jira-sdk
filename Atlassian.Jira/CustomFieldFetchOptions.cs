@@ -8,18 +8,16 @@ namespace Atlassian.Jira
     public class CustomFieldFetchOptions
     {
         /// <summary>
-        /// The list of projects with which to filter the results.
+        /// The project with which to filter the results.
         /// </summary>
-        public IList<string> ProjectKeys { get; } = new List<string>();
+        public string ProjectKey { get; set; }
 
         /// <summary>
-        /// The list of issue type ids with which to filter the results.
+        /// The issue type id with which to filter the results.
+        /// If IssueTypeId is empty we are going to fetch all
+        /// available issue types for the given project
         /// </summary>
-        public IList<string> IssueTypeIds { get; } = new List<string>();
+        public string IssueTypeId { get; set; }
 
-        /// <summary>
-        /// The list of issue type names with which to filter the results.
-        /// </summary>
-        public IList<string> IssueTypeNames { get; } = new List<string>();
     }
 }
