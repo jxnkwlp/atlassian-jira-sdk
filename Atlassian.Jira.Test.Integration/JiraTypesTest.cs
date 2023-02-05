@@ -78,7 +78,8 @@ namespace Atlassian.Jira.Test.Integration
             Assert.Equal("2", status.StatusCategory.Id);
             Assert.Equal("new", status.StatusCategory.Key);
             Assert.Equal("To Do", status.StatusCategory.Name);
-            Assert.Equal("blue-gray", status.StatusCategory.ColorName);
+            // On Jira 9.x the color name is now default, check for both old and new color name 
+            Assert.Contains(status.StatusCategory.ColorName, new string[] { "blue-gray", "default" });
         }
 
         [Theory]
