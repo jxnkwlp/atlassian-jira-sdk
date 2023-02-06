@@ -41,6 +41,7 @@ namespace Atlassian.Jira.Remote
         {
             var issueObj = JObject.Load(reader);
             var fields = issueObj["fields"] as JObject;
+            var renderedFields = issueObj["renderedFields"] as JObject;
 
             // deserialize the RemoteIssue from the fields json.
             var textReader = new JsonTextReader(new StringReader(fields.ToString()));
@@ -60,6 +61,9 @@ namespace Atlassian.Jira.Remote
 
             // save fields dictionary
             remoteIssue.fieldsReadOnly = fields;
+
+            // save renderedFields dictionary
+            remoteIssue.renderedFieldsReadOnly = renderedFields;
 
             return new RemoteIssueWrapper(remoteIssue);
         }

@@ -45,5 +45,12 @@ namespace Atlassian.Jira
         /// Additional fields to include as part of the response.
         /// </summary>
         public IList<string> AdditionalFields { get; set; } = new List<string>();
+
+        /// <summary>
+        /// The fields of the Issue object to expand with information on the server.
+        /// See https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-get
+        /// </summary>
+        /// <remarks>To return the description as html you can use the "renderedFields" flag.</remarks>
+        public IList<string> Expand { get; set; } = new List<string>();
     }
 }

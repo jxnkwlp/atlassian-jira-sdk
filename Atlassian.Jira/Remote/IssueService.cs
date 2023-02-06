@@ -63,9 +63,18 @@ namespace Atlassian.Jira.Remote
 
         public async Task<Issue> GetIssueAsync(string issueKey, CancellationToken token = default(CancellationToken))
         {
+            return await GetIssueAsync(issueKey, null, token);
+        }
+
+        public async Task<Issue> GetIssueAsync(string issueKey, IList<string> expand, CancellationToken token = default(CancellationToken))
+        {
             var excludedFields = String.Join(",", _excludedFields.Select(field => $"-{field}"));
             var fields = $"{ALL_FIELDS_QUERY_STRING},{excludedFields}";
             var resource = $"rest/api/2/issue/{issueKey}?fields={fields}";
+            if (expand?.Any() ?? false)
+            {
+                resource += $"&expand={string.Join(",", expand)}";
+            }
             var response = await _jira.RestClient.ExecuteRequestAsync(Method.Get, resource, null, token).ConfigureAwait(false);
             var serializerSettings = await GetIssueSerializerSettingsAsync(token).ConfigureAwait(false);
             var issue = JsonConvert.DeserializeObject<RemoteIssueWrapper>(response.ToString(), serializerSettings);
@@ -115,7 +124,8 @@ namespace Atlassian.Jira.Remote
                 startAt = options.StartAt,
                 maxResults = options.MaxIssuesPerRequest ?? this.MaxIssuesPerRequest,
                 validateQuery = options.ValidateQuery,
-                fields = fields
+                fields = fields,
+                expand = options.Expand
             };
 
             var result = await _jira.RestClient.ExecuteRequestAsync(Method.Post, "rest/api/2/search", parameters, token).ConfigureAwait(false);

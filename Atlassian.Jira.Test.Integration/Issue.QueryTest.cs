@@ -23,6 +23,7 @@ namespace Atlassian.Jira.Test.Integration
             var issues = await jira.Issues.GetIssuesFromJqlAsync(options);
             Assert.NotNull(issues.First().Summary);
             Assert.Null(issues.First().Assignee);
+            Assert.Equal(0, issues.First().RenderedFields.Count);
         }
 
         [Theory]
@@ -259,5 +260,40 @@ namespace Atlassian.Jira.Test.Integration
             var issues = await jira.Issues.GetIssuesFromJqlAsync("key = TST-1");
             Assert.Single(issues);
         }
+
+        [Theory]
+        [ClassData(typeof(JiraProvider))]
+        public async Task GetIssuesAsyncWithExpandedRenderedFields(Jira jira)
+        {
+            var issue = new Issue(jira, "TST")
+            {
+                Type = "1",
+                Summary = "Test issue with new line on description",
+                Description = "Description\nwith new line",
+                Assignee = "admin"
+            };
+
+            issue.SaveChanges();
+
+            issue = await jira.Issues.GetIssueAsync(issue.Key.Value, new List<string>() { "renderedFields" });
+
+            Assert.NotNull(issue);
+            Assert.NotEqual(0, issue.RenderedFields.Count);
+            Assert.True(issue.RenderedFields.ContainsKey("description"), "Description should be included by default.");
+            Assert.Equal("Description<br/>\nwith new line", issue.RenderedFields["description"].ToString());
+
+            var options = new IssueSearchOptions($"key = {issue.Key.Value}")
+            {
+                Expand = new List<string>() { "renderedFields" }
+            };
+
+            var issues = await jira.Issues.GetIssuesFromJqlAsync(options);
+            Assert.Single(issues);
+            Assert.NotEqual(0, issues.First().RenderedFields.Count);
+            Assert.True(issues.First().RenderedFields.ContainsKey("description"), "Description should be included by default.");
+            Assert.Equal("Description<br/>\nwith new line", issues.First().RenderedFields["description"].ToString());
+        }
+
+
     }
 }

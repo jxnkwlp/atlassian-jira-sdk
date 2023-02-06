@@ -1543,6 +1543,9 @@ namespace Atlassian.Jira.Remote
 
         [JsonProperty("votes")]
         public RemoteVotes votesData { get; set; }
+
+        [JsonIgnore]
+        public IDictionary<string, JToken> renderedFieldsReadOnly { get; set; }
     }
 
     public class RemotePagedResult
@@ -1558,7 +1561,7 @@ namespace Atlassian.Jira.Remote
         public RemoteWorklog[] remoteWorklogs { get; set; }
     }
 
-    public class RemotePagedComments: RemotePagedResult
+    public class RemotePagedComments : RemotePagedResult
     {
         [JsonProperty("comments")]
         public RemoteComment[] remoteComments { get; set; }

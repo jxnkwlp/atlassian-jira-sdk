@@ -134,6 +134,9 @@ namespace Atlassian.Jira
 
             // additional fields
             this.AdditionalFields = new IssueFields(_originalIssue, Jira);
+
+            // rendered fields
+            this.RenderedFields = new IssueRenderedFields(_originalIssue);
         }
 
         internal RemoteIssue OriginalRemoteIssue
@@ -148,6 +151,11 @@ namespace Atlassian.Jira
         /// Fields not represented as properties that were retrieved from the server.
         /// </summary>
         public IssueFields AdditionalFields { get; private set; }
+
+        /// <summary>
+        /// Rendered Fields retrieved from the server using expand renderedBody.
+        /// </summary>
+        public IssueRenderedFields RenderedFields { get; private set; }
 
         /// <summary>
         /// The parent key if this issue is a subtask.

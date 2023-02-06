@@ -36,6 +36,14 @@ namespace Atlassian.Jira
         Task<Issue> GetIssueAsync(string issueKey, CancellationToken token = default(CancellationToken));
 
         /// <summary>
+        /// Retrieves an issue by its key.
+        /// </summary>
+        /// <param name="issueKey">The issue key to retrieve</param>
+        /// <param name="expand">Expand issue properties. Eg. renderedFields</param>
+        /// <param name="token">Cancellation token for this operation.</param>
+        Task<Issue> GetIssueAsync(string issueKey, IList<string> expand, CancellationToken token = default(CancellationToken));
+
+        /// <summary>
         /// Retrieves a list of issues by their keys.
         /// </summary>
         /// <param name="issueKeys">List of issue keys to retrieve.</param>
