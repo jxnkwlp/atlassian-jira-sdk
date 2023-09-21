@@ -89,6 +89,11 @@ namespace Atlassian.Jira
             _jira.RestClient.Download(url, fullFileName);
         }
 
+        /// <summary>
+        /// Returns the Url to Jira REST API v2 for downloading an issue attachment
+        /// https://community.developer.atlassian.com/t/deprecation-of-obsolete-jira-cloud-download-attachment-and-thumbnail-urls/63171
+        /// https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-900
+        /// </summary>
         private string GetRequestUrl()
         {
             if (String.IsNullOrEmpty(_jira.Url))
@@ -96,10 +101,9 @@ namespace Atlassian.Jira
                 throw new InvalidOperationException("Unable to download attachment, JIRA url has not been set.");
             }
 
-            return String.Format("{0}secure/attachment/{1}/{2}",
+            return String.Format("{0}rest/api/2/attachment/content/{1}?redirect=false",
                 _jira.Url.EndsWith("/") ? _jira.Url : _jira.Url + "/",
-                this.Id,
-                this.FileName);
+                this.Id);
         }
     }
 }
