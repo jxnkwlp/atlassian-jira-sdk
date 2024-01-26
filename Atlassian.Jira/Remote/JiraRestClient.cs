@@ -26,8 +26,9 @@ namespace Atlassian.Jira.Remote
         /// <param name="username">Username used to authenticate.</param>
         /// <param name="password">Password used to authenticate.</param>
         /// <param name="settings">Settings to configure the rest client.</param>
-        public JiraRestClient(string url, string username = null, string password = null, JiraRestClientSettings settings = null)
-            : this(url, new HttpBasicAuthenticator(username, password), settings)
+        /// <param name="configureRestClient">Configure additional rest client options</param>
+        public JiraRestClient(string url, string username = null, string password = null, JiraRestClientSettings settings = null, ConfigureRestClient configureRestClient = null)
+            : this(url, new HttpBasicAuthenticator(username, password), settings, configureRestClient)
         {
         }
 
@@ -37,14 +38,21 @@ namespace Atlassian.Jira.Remote
         /// <param name="url">The url to the JIRA server.</param>
         /// <param name="authenticator">The authenticator used by RestSharp.</param>
         /// <param name="settings">The settings to configure the rest client.</param>
-        protected JiraRestClient(string url, IAuthenticator authenticator, JiraRestClientSettings settings = null)
+        /// <param name="configureRestClient">Configure additional rest client options</param>
+        protected JiraRestClient(string url, IAuthenticator authenticator, JiraRestClientSettings settings = null, ConfigureRestClient configureRestClient = null)
         {
             url = url.EndsWith("/") ? url : url += "/";
             _clientSettings = settings ?? new JiraRestClientSettings();
-            _restClient = new RestClient(url);
 
-            this._restClient.Options.Proxy = _clientSettings.Proxy;
-            this._restClient.Authenticator = authenticator;
+            var restClientOptions =
+                new RestClientOptions(url)
+                {
+                    Authenticator = authenticator,
+                    Proxy = _clientSettings.Proxy
+                };
+
+            configureRestClient?.Invoke(restClientOptions);
+            _restClient = new RestClient(restClientOptions);
         }
 
         /// <summary>
@@ -114,7 +122,7 @@ namespace Atlassian.Jira.Remote
             }
 
             LogRequest(request, requestBody);
-            var response = await ExecuteRawResquestAsync(request, token).ConfigureAwait(false);
+            var response = await ExecuteRawRequestAsync(request, token).ConfigureAwait(false);
             return GetValidJsonFromResponse(request, response);
         }
 
@@ -124,7 +132,7 @@ namespace Atlassian.Jira.Remote
         public async Task<RestResponse> ExecuteRequestAsync(RestRequest request, CancellationToken token = default(CancellationToken))
         {
             LogRequest(request);
-            var response = await ExecuteRawResquestAsync(request, token).ConfigureAwait(false);
+            var response = await ExecuteRawRequestAsync(request, token).ConfigureAwait(false);
             GetValidJsonFromResponse(request, response);
             return response;
         }
@@ -132,7 +140,7 @@ namespace Atlassian.Jira.Remote
         /// <summary>
         /// Executes a raw request.
         /// </summary>
-        protected virtual Task<RestResponse> ExecuteRawResquestAsync(RestRequest request, CancellationToken token)
+        protected virtual Task<RestResponse> ExecuteRawRequestAsync(RestRequest request, CancellationToken token)
         {
             return _restClient.ExecuteAsync(request, token);
         }
