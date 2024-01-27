@@ -29,10 +29,10 @@ namespace Atlassian.Jira.OAuth
 
             authenticator.SignatureMethod = oAuthRequestTokenSettings.SignatureMethod.ToOAuthSignatureMethod();
 
-            var restClient = new RestClient(oAuthRequestTokenSettings.Url)
-            {
-                Authenticator = authenticator
-            };
+            var restClient =
+                new RestClient(
+                    oAuthRequestTokenSettings.Url,
+                    restClientOptions => restClientOptions.Authenticator = authenticator);
 
             return GenerateRequestTokenAsync(
                 restClient,
@@ -94,10 +94,10 @@ namespace Atlassian.Jira.OAuth
                 oAuthAccessTokenSettings.OAuthVerifier);
             authenticator.SignatureMethod = oAuthAccessTokenSettings.SignatureMethod.ToOAuthSignatureMethod();
 
-            var restClient = new RestClient(oAuthAccessTokenSettings.Url)
-            {
-                Authenticator = authenticator
-            };
+            var restClient =
+                new RestClient(
+                    oAuthAccessTokenSettings.Url,
+                    restClientOptions => restClientOptions.Authenticator = authenticator);
 
             return ObtainOAuthAccessTokenAsync(
                 restClient,

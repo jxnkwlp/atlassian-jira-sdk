@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
+using RestSharp;
 using RestSharp.Serializers;
 
 namespace Atlassian.Jira.Remote
@@ -16,7 +17,7 @@ namespace Atlassian.Jira.Remote
         /// </summary>
         public RestSharpJsonSerializer()
         {
-            ContentType = "application/json";
+            ContentType = ContentType.Json;
             _serializer = new Newtonsoft.Json.JsonSerializer
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -30,7 +31,7 @@ namespace Atlassian.Jira.Remote
         /// </summary>
         public RestSharpJsonSerializer(Newtonsoft.Json.JsonSerializer serializer)
         {
-            ContentType = "application/json";
+            ContentType = ContentType.Json;
             _serializer = serializer;
         }
 
@@ -71,6 +72,6 @@ namespace Atlassian.Jira.Remote
         /// <summary>
         /// Content type for serialized content
         /// </summary>
-        public string ContentType { get; set; }
+        public ContentType ContentType { get; set; }
     }
 }

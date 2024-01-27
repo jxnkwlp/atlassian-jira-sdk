@@ -14,21 +14,20 @@ namespace Atlassian.Jira.Test.Integration
         private readonly IAuthenticator _authenticator;
 
         public CookiesRestClient(string url, string user, string password)
-            : base(url, user, password)
+            : base(url, user, password, configureRestClient: restClientOptions => restClientOptions.Authenticator = null)
         {
-            RestSharpClient.Authenticator = null;
             _authenticator = new HttpBasicAuthenticator(user, password);
         }
 
-        protected override async Task<RestResponse> ExecuteRawResquestAsync(RestRequest request, CancellationToken token)
+        protected override async Task<RestResponse> ExecuteRawRequestAsync(RestRequest request, CancellationToken token)
         {
             var response = await RestSharpClient.ExecuteAsync(request, token).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                RestSharpClient.Authenticator = _authenticator;
+                request.Authenticator = _authenticator;
                 response = await RestSharpClient.ExecuteAsync(request, token).ConfigureAwait(false);
-                RestSharpClient.Authenticator = null;
+                request.Authenticator = null;
             }
 
             return response;

@@ -3,6 +3,7 @@ using System.Globalization;
 using Atlassian.Jira.Linq;
 using Atlassian.Jira.OAuth;
 using Atlassian.Jira.Remote;
+using RestSharp;
 
 namespace Atlassian.Jira
 {
@@ -37,10 +38,11 @@ namespace Atlassian.Jira
         /// <param name="password">Password used to authenticate.</param>
         /// <param name="settings">Settings to configure the rest client.</param>
         /// <returns>Jira object configured to use REST API.</returns>
-        public static Jira CreateRestClient(string url, string username = null, string password = null, JiraRestClientSettings settings = null)
+        /// <param name="configureRestClient">Configure additional rest client options</param>
+        public static Jira CreateRestClient(string url, string username = null, string password = null, JiraRestClientSettings settings = null, ConfigureRestClient configureRestClient = null)
         {
             settings = settings ?? new JiraRestClientSettings();
-            var restClient = new JiraRestClient(url, username, password, settings);
+            var restClient = new JiraRestClient(url, username, password, settings, configureRestClient);
 
             return CreateRestClient(restClient, settings.Cache);
         }
@@ -55,6 +57,7 @@ namespace Atlassian.Jira
         /// <param name="oAuthTokenSecret">The token secret provided by Jira when asking for a request token.</param>
         /// <param name="oAuthSignatureMethod">The signature method used to generate the request token.</param>
         /// <param name="settings">Settings to configure the rest client.</param>
+        /// <param name="configureRestClient">Configure additional rest client options</param>
         /// <returns>Jira object configured to use REST API.</returns>
         public static Jira CreateOAuthRestClient(
             string url,
@@ -63,7 +66,8 @@ namespace Atlassian.Jira
             string oAuthAccessToken,
             string oAuthTokenSecret,
             JiraOAuthSignatureMethod oAuthSignatureMethod = JiraOAuthSignatureMethod.RsaSha1,
-            JiraRestClientSettings settings = null)
+            JiraRestClientSettings settings = null,
+            ConfigureRestClient configureRestClient = null)
         {
             settings = settings ?? new JiraRestClientSettings();
             var restClient = new JiraOAuthRestClient(
@@ -73,7 +77,8 @@ namespace Atlassian.Jira
                 oAuthAccessToken,
                 oAuthTokenSecret,
                 oAuthSignatureMethod,
-                settings);
+                settings,
+                configureRestClient);
 
             return CreateRestClient(restClient, settings.Cache);
         }
